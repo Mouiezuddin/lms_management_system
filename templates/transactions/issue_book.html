@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}Issue Book{% endblock %}
+{% block page_title %}Issue Book{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="lms-card">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <div>
+                    <h4 style="font-family:'DM Serif Display',serif;color:#1a3a5c;margin:0;">Issue a Book</h4>
+                    <p style="color:#6c6c7e;font-size:0.82rem;margin:0;">Select a user and book to create a new loan.
+                    </p>
+                </div>
+                <a href="{% url 'transactions:transaction_list' %}" class="btn btn-sm"
+                    style="background:#f3f4f6;color:#374151;border:none;">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}
+                    <div><i class="bi bi-exclamation-triangle me-1"></i>{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="mb-3">
+                    <label class="form-label">Issue To (Student / Faculty) *</label>
+                    {{ form.user }}
+                    {% if form.user.errors %}<div class="text-danger mt-1" style="font-size:0.78rem;">{{
+                        form.user.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Filter by Category</label>
+                    <select id="categoryFilter" class="form-select"
+                        style="border-radius:8px;border:1px solid #e2ddd8;font-size:0.875rem;padding:0.55rem 0.9rem;">
+                        <option value="">-- All Categories --</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <small class="text-muted">Select a category to filter available books</small>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Book *</label>
+                    {{ form.book }}
+                    {% if form.book.errors %}<div class="text-danger mt-1" style="font-size:0.78rem;">{{
+                        form.book.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Notes</label>
+                    {{ form.notes }}
+                </div>
+
+                <!-- Loan Policy Info -->
+                <div class="p-3 mb-4" style="background:#f0f9ff;border-radius:8px;border:1px solid #bae6fd;">
+                    <div style="font-size:0.82rem;color:#0369a1;">
+                        <i class="bi bi-info-circle me-1"></i>
+                        <strong>Loan Policy:</strong>
+                        Due date will be set to <strong>7 days</strong> from today.
+                        Late returns incur a fine of <strong>₹5 per day</strong>.
+                        Users may hold a maximum of <strong>3 books</strong> at a time.
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-lms-accent">
+                        <i class="bi bi-box-arrow-in-right me-1"></i>Issue Book
+                    </button>
+                    <a href="{% url 'transactions:transaction_list' %}" class="btn"
+                        style="background:#f3f4f6;color:#374151;border:none;">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const categoryFilter = document.getElementById('categoryFilter');
+        const bookSelect = document.querySelector('select[name="book"]');
+
+        if (!categoryFilter || !bookSelect) return;
+
+        // Store all original options with their book objects
+        const allBooks = [];
+        Array.from(bookSelect.options).forEach((opt, index) => {
+            if (index > 0) { // Skip placeholder
+                allBooks.push({
+                    id: opt.value,
+                    title: opt.text,
+                    element: opt.cloneNode(true)
+                });
+            }
+        });
+
+        categoryFilter.addEventListener('change', function () {
+            const selectedCategoryId = this.value;
+
+            // Keep placeholder
+            const placeholder = bookSelect.options[0];
+
+            // Remove all options except placeholder
+            while (bookSelect.options.length > 1) {
+                bookSelect.remove(1);
+            }
+
+            if (!selectedCategoryId) {
+                // Show all books
+                allBooks.forEach(book => {
+                    bookSelect.appendChild(book.element.cloneNode(true));
+                });
+            } else {
+                // For now, show all books (category filtering would need backend support)
+                // This is a placeholder for future AJAX implementation
+                allBooks.forEach(book => {
+                    bookSelect.appendChild(book.element.cloneNode(true));
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

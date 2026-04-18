@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}{{ book.title }}{% endblock %}
+{% block page_title %}Book Detail{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <a href="{% url 'books:book_list' %}" class="btn btn-sm" style="background:#f3f4f6;color:#374151;border:none;margin-bottom:0.75rem;">
+            <i class="bi bi-arrow-left me-1"></i>Back to Catalog
+        </a>
+        <h2 style="font-family:'DM Serif Display',serif;font-size:1.8rem;color:#1a3a5c;margin:0;">{{ book.title }}</h2>
+        <p style="color:#6c6c7e;font-size:0.9rem;margin-top:0.25rem;">by {{ book.author }}</p>
+    </div>
+    {% if user.is_admin_user %}
+    <div class="d-flex gap-2">
+        <a href="{% url 'books:book_update' book.pk %}" class="btn btn-lms-primary">
+            <i class="bi bi-pencil me-1"></i>Edit
+        </a>
+        <a href="{% url 'books:book_delete' book.pk %}" class="btn" style="background:#fee2e2;color:#991b1b;border:none;">
+            <i class="bi bi-trash me-1"></i>Delete
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="lms-card">
+            <div class="row g-3">
+                <div class="col-sm-6">
+                    <div class="section-title">Book Information</div>
+                    <table style="width:100%;font-size:0.875rem;">
+                        <tr>
+                            <td style="color:#6c6c7e;padding:0.4rem 0;width:40%;">ISBN</td>
+                            <td style="font-weight:500;">{{ book.isbn }}</td>
+                        </tr>
+                        <tr>
+                            <td style="color:#6c6c7e;padding:0.4rem 0;">Author</td>
+                            <td style="font-weight:500;">{{ book.author }}</td>
+                        </tr>
+                        <tr>
+                            <td style="color:#6c6c7e;padding:0.4rem 0;">Category</td>
+                            <td>
+                                {% if book.category %}
+                                <span class="lms-badge" style="background:#e0e7ff;color:#3730a3;">{{ book.category.name }}</span>
+                                {% else %}<span style="color:#9ca3af;">—</span>{% endif %}
+                            </td>
+                        </tr>
+                        {% if book.publisher %}
+                        <tr>
+                            <td style="color:#6c6c7e;padding:0.4rem 0;">Publisher</td>
+                            <td>{{ book.publisher }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if book.publication_year %}
+                        <tr>
+                            <td style="color:#6c6c7e;padding:0.4rem 0;">Year</td>
+                            <td>{{ book.publication_year }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if book.shelf_location %}
+                        <tr>
+                            <td style="color:#6c6c7e;padding:0.4rem 0;">Shelf</td>
+                            <td>{{ book.shelf_location }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                </div>
+                <div class="col-sm-6">
+                    <div class="section-title">Availability</div>
+                    <div class="text-center py-3">
+                        {% if book.is_available %}
+                        <div style="font-size:3rem;color:#10b981;"><i class="bi bi-check-circle-fill"></i></div>
+                        <div style="font-weight:600;color:#065f46;font-size:1.1rem;">Available</div>
+                        {% else %}
+                        <div style="font-size:3rem;color:#ef4444;"><i class="bi bi-x-circle-fill"></i></div>
+                        <div style="font-weight:600;color:#991b1b;font-size:1.1rem;">Out of Stock</div>
+                        {% endif %}
+                        <div style="font-size:0.85rem;color:#6c6c7e;margin-top:0.5rem;">
+                            {{ book.available_quantity }} of {{ book.total_quantity }} copies available
+                        </div>
+                        <div class="progress mt-2" style="height:8px;border-radius:4px;">
+                            <div class="progress-bar" style="width:{% widthratio book.available_quantity book.total_quantity 100 %}%;background:#10b981;border-radius:4px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if book.description %}
+            <div class="mt-3 pt-3 border-top">
+                <div class="section-title">Description</div>
+                <p style="font-size:0.875rem;color:#374151;line-height:1.7;">{{ book.description }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Action Card -->
+        <div class="lms-card mb-3">
+            <div class="section-title">Actions</div>
+            {% if user.is_admin_user %}
+                {% if book.is_available %}
+                <a href="{% url 'transactions:issue_book' %}?book={{ book.pk }}" class="btn btn-lms-accent w-100 mb-2">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Issue This Book
+                </a>
+                {% else %}
+                <button class="btn w-100 mb-2" disabled style="background:#f3f4f6;color:#9ca3af;border:none;">
+                    <i class="bi bi-x-circle me-2"></i>No Copies Available
+                </button>
+                {% endif %}
+            {% else %}
+                {% if user_has_issued %}
+                <div class="alert alert-info" style="font-size:0.82rem;">
+                    <i class="bi bi-info-circle me-1"></i>
+                    You currently have this book. Return it to the librarian.
+                </div>
+                {% elif book.is_available %}
+                <div class="alert" style="background:#d1fae5;color:#065f46;font-size:0.82rem;border:none;border-radius:8px;">
+                    <i class="bi bi-check-circle me-1"></i>
+                    This book is available! Visit the library desk to borrow it.
+                </div>
+                {% else %}
+                <div class="alert alert-danger" style="font-size:0.82rem;">
+                    <i class="bi bi-x-circle me-1"></i>
+                    All copies are currently issued. Check back later.
+                </div>
+                {% endif %}
+            {% endif %}
+
+            <a href="{% url 'books:book_list' %}" class="btn w-100" style="background:#f3f4f6;color:#374151;border:none;font-size:0.85rem;">
+                <i class="bi bi-arrow-left me-1"></i>Back to Catalog
+            </a>
+        </div>
+
+        <!-- Admin: Recent Issues -->
+        {% if user.is_admin_user and recent_issues %}
+        <div class="lms-card">
+            <div class="section-title">Recent Activity</div>
+            {% for issue in recent_issues %}
+            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <div>
+                    <div style="font-size:0.82rem;font-weight:500;">{{ issue.user.get_full_name|default:issue.user.username }}</div>
+                    <div style="font-size:0.72rem;color:#6c6c7e;">{{ issue.issue_date|date:"d M Y" }}</div>
+                </div>
+                {% if issue.return_date %}
+                <span class="lms-badge status-returned">Returned</span>
+                {% elif issue.is_overdue %}
+                <span class="lms-badge status-overdue">Overdue</span>
+                {% else %}
+                <span class="lms-badge status-active">Active</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

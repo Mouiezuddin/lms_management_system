@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}My Books{% endblock %}
+{% block page_title %}My Books{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>My Issued Books</h2>
+    <a href="{% url 'books:book_list' %}" class="btn btn-lms-primary">
+        <i class="bi bi-search me-1"></i>Browse Catalog
+    </a>
+</div>
+
+{% if active_issues %}
+<div class="section-title">Currently Issued</div>
+<div class="lms-card mb-4">
+    <table class="table lms-table mb-0">
+        <thead>
+            <tr>
+                <th>Book</th>
+                <th>Issue Date</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th>Fine</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in active_issues %}
+            <tr>
+                <td>
+                    <div style="font-weight:500;color:#1a3a5c;">{{ t.book.title }}</div>
+                    <div style="font-size:0.75rem;color:#6c6c7e;">{{ t.book.author }}</div>
+                </td>
+                <td style="font-size:0.82rem;">{{ t.issue_date|date:"d M Y" }}</td>
+                <td style="font-size:0.82rem;{% if t.is_overdue %}color:#991b1b;font-weight:600;{% endif %}">
+                    {{ t.due_date|date:"d M Y" }}
+                    {% if t.is_overdue %}
+                    <div style="font-size:0.72rem;">{{ t.late_days }} day(s) late</div>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if t.is_overdue %}
+                    <span class="lms-badge status-overdue">Overdue</span>
+                    {% else %}
+                    <span class="lms-badge status-active">Active</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if t.is_overdue %}
+                    <span style="color:#92400e;font-weight:600;font-size:0.85rem;">₹{{ t.calculated_fine }} (projected)</span>
+                    {% else %}—{% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="lms-card text-center py-5 mb-4">
+    <i class="bi bi-inbox" style="font-size:2.5rem;color:#9ca3af;display:block;margin-bottom:0.5rem;"></i>
+    <p style="color:#6c6c7e;">You have no books currently issued.</p>
+    <a href="{% url 'books:book_list' %}" class="btn btn-lms-primary btn-sm">Browse Catalog</a>
+</div>
+{% endif %}
+
+{% if pending_fines %}
+<div class="section-title" style="color:#92400e;">Pending Fines</div>
+<div class="lms-card mb-4" style="border-color:#fcd34d;">
+    {% for t in pending_fines %}
+    <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
+        <div>
+            <div style="font-weight:500;">{{ t.book.title }}</div>
+            <div style="font-size:0.78rem;color:#6c6c7e;">{{ t.late_days }} day(s) late · Returned {{ t.return_date|date:"d M Y" }}</div>
+        </div>
+        <div style="text-align:right;">
+            <div style="font-family:'DM Serif Display',serif;font-size:1.3rem;color:#92400e;">₹{{ t.fine_amount }}</div>
+            <div style="font-size:0.72rem;color:#6c6c7e;">Contact librarian to pay</div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if history %}
+<div class="section-title">Return History</div>
+<div class="lms-card">
+    <table class="table lms-table mb-0">
+        <thead>
+            <tr>
+                <th>Book</th>
+                <th>Issued</th>
+                <th>Returned</th>
+                <th>Fine</th>
+                <th>Fine Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in history %}
+            <tr>
+                <td>
+                    <div style="font-weight:500;">{{ t.book.title }}</div>
+                    <div style="font-size:0.75rem;color:#6c6c7e;">{{ t.book.author }}</div>
+                </td>
+                <td style="font-size:0.82rem;">{{ t.issue_date|date:"d M Y" }}</td>
+                <td style="font-size:0.82rem;">{{ t.return_date|date:"d M Y" }}</td>
+                <td style="font-size:0.82rem;">
+                    {% if t.fine_amount %}₹{{ t.fine_amount }}{% else %}—{% endif %}
+                </td>
+                <td>
+                    {% if t.fine_status == 'PAID' %}
+                    <span class="lms-badge status-fine-paid">Paid</span>
+                    {% elif t.fine_status == 'WAIVED' %}
+                    <span class="lms-badge status-fine-waived">Waived</span>
+                    {% elif t.fine_status == 'PENDING' %}
+                    <span class="lms-badge status-fine-pending">Pending</span>
+                    {% else %}
+                    <span class="lms-badge" style="background:#f3f4f6;color:#374151;">—</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

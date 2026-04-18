@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Pending Fines{% endblock %}
+{% block page_title %}Pending Fines{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Pending Fines</h2>
+    <div class="lms-card px-4 py-2 d-flex align-items-center gap-2" style="background:#fef3c7;border-color:#fcd34d;">
+        <span style="font-size:0.82rem;color:#92400e;">Total Outstanding:</span>
+        <strong style="font-family:'DM Serif Display',serif;font-size:1.4rem;color:#92400e;">₹{{ total_pending }}</strong>
+    </div>
+</div>
+
+<div class="lms-card">
+    <table class="table lms-table mb-0">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Book</th>
+                <th>User</th>
+                <th>Return Date</th>
+                <th>Late Days</th>
+                <th>Fine Amount</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for fine in fines %}
+            <tr>
+                <td style="color:#9ca3af;font-size:0.78rem;">{{ fine.pk }}</td>
+                <td>
+                    <a href="{% url 'books:book_detail' fine.book.pk %}" style="font-weight:500;color:#1a3a5c;text-decoration:none;">
+                        {{ fine.book.title|truncatechars:35 }}
+                    </a>
+                </td>
+                <td>
+                    <div style="font-weight:500;font-size:0.875rem;">{{ fine.user.get_full_name|default:fine.user.username }}</div>
+                    <span class="lms-badge {% if fine.user.is_student %}role-student{% elif fine.user.is_faculty %}role-faculty{% else %}role-admin{% endif %}">
+                        {{ fine.user.get_role_display }}
+                    </span>
+                </td>
+                <td style="font-size:0.82rem;">{{ fine.return_date|date:"d M Y" }}</td>
+                <td>
+                    <span class="lms-badge status-overdue">{{ fine.late_days }} day(s)</span>
+                </td>
+                <td>
+                    <strong style="font-family:'DM Serif Display',serif;font-size:1.2rem;color:#92400e;">₹{{ fine.fine_amount }}</strong>
+                </td>
+                <td>
+                    <div class="d-flex gap-1">
+                        <a href="{% url 'transactions:transaction_detail' fine.pk %}" class="btn btn-sm" style="background:#f3f4f6;color:#374151;border:none;font-size:0.75rem;">
+                            <i class="bi bi-eye me-1"></i>View
+                        </a>
+                        <a href="{% url 'transactions:fine_management' fine.pk %}" class="btn btn-sm" style="background:#fef3c7;color:#92400e;border:none;font-size:0.75rem;">
+                            <i class="bi bi-cash me-1"></i>Settle
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="text-center py-5">
+                    <i class="bi bi-check-circle-fill" style="font-size:2.5rem;color:#10b981;display:block;margin-bottom:0.75rem;"></i>
+                    <div style="color:#6c6c7e;font-weight:500;">No pending fines! All clear.</div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if is_paginated %}
+    <div class="d-flex justify-content-center mt-3">
+        <nav><ul class="pagination pagination-sm">
+            {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+            {% endif %}
+            <li class="page-item disabled"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+            {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+            {% endif %}
+        </ul></nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

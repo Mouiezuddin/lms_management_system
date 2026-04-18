@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile{% endblock %}
+{% block page_title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="lms-card">
+            <div class="d-flex align-items-center mb-4">
+                <div class="me-3">
+                    <div
+                        style="width:64px;height:64px;border-radius:50%;background:var(--lms-primary);display:flex;align-items:center;justify-content:center;">
+                        <i class="bi bi-person-fill" style="font-size:2rem;color:#fff;"></i>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="mb-1" style="font-family: 'DM Serif Display', serif; color: var(--lms-primary);">
+                        {{ user.get_full_name|default:user.username }}
+                    </h3>
+                    <span
+                        class="lms-badge {% if user.is_admin_user %}role-admin{% elif user.is_faculty %}role-faculty{% else %}role-student{% endif %}">
+                        {{ user.get_role_display }}
+                    </span>
+                </div>
+            </div>
+
+            <form method="post" class="row g-3">
+                {% csrf_token %}
+
+                <div class="col-md-6">
+                    <label class="form-label">First Name</label>
+                    <input type="text" class="form-control" name="first_name" value="{{ user.first_name }}">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Last Name</label>
+                    <input type="text" class="form-control" name="last_name" value="{{ user.last_name }}">
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" name="email" value="{{ user.email }}">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Phone</label>
+                    <input type="text" class="form-control" name="phone" value="{{ user.phone }}">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Username</label>
+                    <input type="text" class="form-control" value="{{ user.username }}" readonly
+                        style="background-color: var(--lms-light-bg); opacity: 0.7;">
+                    <small class="text-muted">Username cannot be changed</small>
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">Address</label>
+                    <textarea class="form-control" name="address" rows="3">{{ user.address }}</textarea>
+                </div>
+
+                <div class="col-12">
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-lms-primary">
+                            <i class="bi bi-check-lg me-1"></i>Update Profile
+                        </button>
+                        <a href="{% url 'accounts:dashboard' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Account Information Card -->
+        <div class="lms-card mt-4">
+            <h5 class="mb-3" style="color: var(--lms-primary);">
+                <i class="bi bi-info-circle me-2"></i>Account Information
+            </h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <small class="text-muted d-block">Member Since</small>
+                    <strong>{{ user.date_joined|date:"F d, Y" }}</strong>
+                </div>
+                <div class="col-md-6">
+                    <small class="text-muted d-block">Last Login</small>
+                    <strong>{{ user.last_login|date:"F d, Y g:i A"|default:"Never" }}</strong>
+                </div>
+                {% if not user.is_admin_user %}
+                <div class="col-md-6">
+                    <small class="text-muted d-block">Active Issues</small>
+                    <strong>{{ user.active_issues_count }} book{{ user.active_issues_count|pluralize }}</strong>
+                </div>
+                <div class="col-md-6">
+                    <small class="text-muted d-block">Account Status</small>
+                    <span class="lms-badge {% if user.is_active %}status-active{% else %}status-overdue{% endif %}">
+                        {% if user.is_active %}Active{% else %}Inactive{% endif %}
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

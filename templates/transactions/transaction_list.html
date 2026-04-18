@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block title %}Transactions{% endblock %}
+{% block page_title %}All Transactions{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Transactions</h2>
+    <a href="{% url 'transactions:issue_book' %}" class="btn btn-lms-accent">
+        <i class="bi bi-plus-lg me-1"></i>Issue Book
+    </a>
+</div>
+
+<!-- Filters -->
+<div class="lms-card mb-4">
+    <form method="get" class="row g-3 align-items-end">
+        <div class="col-md-5">
+            <label class="form-label">Search</label>
+            <input type="text" name="q" class="form-control" value="{{ q }}" placeholder="Book title, ISBN, or user name...">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-select">
+                <option value="" {% if not status_filter %}selected{% endif %}>All</option>
+                <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+                <option value="returned" {% if status_filter == 'returned' %}selected{% endif %}>Returned</option>
+                <option value="overdue" {% if status_filter == 'overdue' %}selected{% endif %}>Overdue</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-lms-primary w-100">
+                <i class="bi bi-funnel me-1"></i>Filter
+            </button>
+        </div>
+    </form>
+</div>
+
+{% if overdue_count %}
+<div class="alert alert-warning mb-3" style="border-radius:10px;">
+    <i class="bi bi-alarm me-2"></i>
+    <strong>{{ overdue_count }}</strong> book(s) are overdue.
+    <a href="?status=overdue" style="color:#92400e;font-weight:600;text-decoration:underline;">View overdue →</a>
+</div>
+{% endif %}
+
+<div class="lms-card">
+    <table class="table lms-table mb-0">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Book</th>
+                <th>User</th>
+                <th>Issued</th>
+                <th>Due</th>
+                <th>Returned</th>
+                <th>Fine</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in transactions %}
+            <tr>
+                <td style="color:#9ca3af;font-size:0.78rem;">{{ t.pk }}</td>
+                <td>
+                    <a href="{% url 'books:book_detail' t.book.pk %}" style="font-weight:500;color:#1a3a5c;text-decoration:none;">
+                        {{ t.book.title|truncatechars:30 }}
+                    </a>
+                    <div style="font-size:0.72rem;color:#9ca3af;">{{ t.book.isbn }}</div>
+                </td>
+                <td>
+                    <div style="font-weight:500;font-size:0.85rem;">{{ t.user.get_full_name|default:t.user.username }}</div>
+                    <div style="font-size:0.72rem;">
+                        <span class="lms-badge {% if t.user.is_student %}role-student{% elif t.user.is_faculty %}role-faculty{% else %}role-admin{% endif %}">
+                            {{ t.user.get_role_display }}
+                        </span>
+                    </div>
+                </td>
+                <td style="font-size:0.82rem;">{{ t.issue_date|date:"d M Y" }}</td>
+                <td style="font-size:0.82rem;">
+                    {{ t.due_date|date:"d M Y" }}
+                    {% if t.is_overdue and not t.return_date %}
+                    <div style="font-size:0.7rem;color:#991b1b;">{{ t.late_days }}d overdue</div>
+                    {% endif %}
+                </td>
+                <td style="font-size:0.82rem;">
+                    {{ t.return_date|date:"d M Y"|default:"—" }}
+                </td>
+                <td>
+                    {% if t.fine_amount %}
+                    <div style="font-size:0.82rem;font-weight:600;">₹{{ t.fine_amount }}</div>
+                    <span class="lms-badge 
+                        {% if t.fine_status == 'PENDING' %}status-fine-pending
+                        {% elif t.fine_status == 'PAID' %}status-fine-paid
+                        {% else %}status-fine-waived{% endif %}">
+                        {{ t.get_fine_status_display }}
+                    </span>
+                    {% else %}—{% endif %}
+                </td>
+                <td>
+                    {% if t.return_date %}
+                        <span class="lms-badge status-returned">Returned</span>
+                    {% elif t.is_overdue %}
+                        <span class="lms-badge status-overdue">Overdue</span>
+                    {% else %}
+                        <span class="lms-badge status-active">Active</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="d-flex gap-1">
+                        <a href="{% url 'transactions:transaction_detail' t.pk %}" class="btn btn-sm" style="font-size:0.75rem;background:#f3f4f6;color:#374151;border:none;" title="View">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        {% if not t.return_date %}
+                        <a href="{% url 'transactions:return_book' t.pk %}" class="btn btn-sm btn-lms-accent" style="font-size:0.75rem;" title="Return">
+                            <i class="bi bi-box-arrow-left"></i>
+                        </a>
+                        {% endif %}
+                        {% if t.fine_status == 'PENDING' %}
+                        <a href="{% url 'transactions:fine_management' t.pk %}" class="btn btn-sm" style="font-size:0.75rem;background:#fef3c7;color:#92400e;border:none;" title="Manage Fine">
+                            <i class="bi bi-cash"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9" class="text-center text-muted py-5">
+                    <i class="bi bi-inbox" style="font-size:2rem;display:block;margin-bottom:0.5rem;"></i>
+                    No transactions found.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if is_paginated %}
+    <div class="d-flex justify-content-center mt-3">
+        <nav>
+            <ul class="pagination pagination-sm">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&status={{ status_filter }}&q={{ q }}">&laquo;</a></li>
+                {% endif %}
+                <li class="page-item disabled"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&status={{ status_filter }}&q={{ q }}">&raquo;</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

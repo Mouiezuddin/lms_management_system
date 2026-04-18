@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Manage Fine{% endblock %}
+{% block page_title %}Fine Management{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="lms-card">
+            <h4 style="font-family:'DM Serif Display',serif;color:#1a3a5c;margin-bottom:1.5rem;">
+                <i class="bi bi-cash-coin me-2" style="color:#c9722a;"></i>Manage Fine
+            </h4>
+
+            <!-- Summary -->
+            <div class="p-3 mb-4" style="background:#fef3c7;border-radius:10px;border:1px solid #fcd34d;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div style="font-weight:600;color:#1a3a5c;">{{ issue.book.title }}</div>
+                        <div style="font-size:0.82rem;color:#6c6c7e;">Borrower: {{ issue.user.get_full_name|default:issue.user.username }}</div>
+                        <div style="font-size:0.78rem;color:#92400e;margin-top:0.25rem;">
+                            {{ issue.late_days }} day(s) overdue · Returned {{ issue.return_date|date:"d M Y" }}
+                        </div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-family:'DM Serif Display',serif;font-size:2.2rem;color:#92400e;line-height:1;">
+                            ₹{{ issue.fine_amount }}
+                        </div>
+                        <div style="font-size:0.72rem;color:#92400e;">PENDING</div>
+                    </div>
+                </div>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label class="form-label">Action</label>
+                    <div class="d-flex flex-column gap-2">
+                        <label class="p-3 d-flex align-items-center gap-3" style="border:2px solid #e2ddd8;border-radius:10px;cursor:pointer;" id="opt-pay">
+                            <input type="radio" name="action" value="pay" class="form-check-input" checked onchange="highlightOption()">
+                            <div>
+                                <div style="font-weight:600;color:#065f46;"><i class="bi bi-check-circle-fill me-1"></i>Mark as Paid</div>
+                                <div style="font-size:0.78rem;color:#6c6c7e;">Record that the user has paid ₹{{ issue.fine_amount }}.</div>
+                            </div>
+                        </label>
+                        <label class="p-3 d-flex align-items-center gap-3" style="border:2px solid #e2ddd8;border-radius:10px;cursor:pointer;" id="opt-waive">
+                            <input type="radio" name="action" value="waive" class="form-check-input" onchange="highlightOption()">
+                            <div>
+                                <div style="font-weight:600;color:#6c6c7e;"><i class="bi bi-shield-check me-1"></i>Waive Fine</div>
+                                <div style="font-size:0.78rem;color:#6c6c7e;">Excuse the fine without payment.</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-lms-primary">
+                        <i class="bi bi-check-lg me-1"></i>Confirm Action
+                    </button>
+                    <a href="{% url 'transactions:transaction_detail' issue.pk %}" class="btn" style="background:#f3f4f6;color:#374151;border:none;">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function highlightOption() {
+    document.getElementById('opt-pay').style.borderColor = '#e2ddd8';
+    document.getElementById('opt-waive').style.borderColor = '#e2ddd8';
+    const selected = document.querySelector('input[name="action"]:checked').value;
+    if (selected === 'pay') document.getElementById('opt-pay').style.borderColor = '#10b981';
+    else document.getElementById('opt-waive').style.borderColor = '#6c6c7e';
+}
+highlightOption();
+</script>
+{% endblock %}

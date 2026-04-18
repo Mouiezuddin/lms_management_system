@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="lms-card">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h4 style="font-family:'DM Serif Display',serif;color:#1a3a5c;margin:0;">{{ title }}</h4>
+                <a href="{% url 'books:book_list' %}" class="btn btn-sm" style="background:#f3f4f6;color:#374151;border:none;">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            </div>
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label">Title *</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}<div class="text-danger mt-1" style="font-size:0.78rem;">{{ form.title.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">ISBN *</label>
+                        {{ form.isbn }}
+                        {% if form.isbn.errors %}<div class="text-danger mt-1" style="font-size:0.78rem;">{{ form.isbn.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Author *</label>
+                        {{ form.author }}
+                        {% if form.author.errors %}<div class="text-danger mt-1" style="font-size:0.78rem;">{{ form.author.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Category</label>
+                        {{ form.category }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Publisher</label>
+                        {{ form.publisher }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Publication Year</label>
+                        {{ form.publication_year }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Shelf Location</label>
+                        {{ form.shelf_location }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Total Copies *</label>
+                        {{ form.total_quantity }}
+                        {% if form.total_quantity.errors %}<div class="text-danger mt-1" style="font-size:0.78rem;">{{ form.total_quantity.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Available Copies *</label>
+                        {{ form.available_quantity }}
+                        {% if form.available_quantity.errors %}<div class="text-danger mt-1" style="font-size:0.78rem;">{{ form.available_quantity.errors.0 }}</div>{% endif %}
+                        <div style="font-size:0.75rem;color:#6c6c7e;margin-top:0.25rem;">
+                            Cannot exceed Total Copies
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Description</label>
+                        {{ form.description }}
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 mt-4 pt-3 border-top">
+                    <button type="submit" class="btn btn-lms-primary">
+                        <i class="bi bi-check-lg me-1"></i>{{ button_label }}
+                    </button>
+                    <a href="{% url 'books:book_list' %}" class="btn" style="background:#f3f4f6;color:#374151;border:none;">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

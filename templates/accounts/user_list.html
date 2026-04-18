@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Users{% endblock %}
+{% block page_title %}Users{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Registered Users</h2>
+    <a href="{% url 'accounts:user_create' %}" class="btn btn-lms-accent">
+        <i class="bi bi-person-plus me-1"></i>Add User
+    </a>
+</div>
+
+<div class="lms-card mb-4">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-8">
+            <label class="form-label">Search Users</label>
+            <input type="text" name="q" class="form-control" value="{{ request.GET.q }}" placeholder="Search by name, username, or email...">
+        </div>
+        <div class="col-md-4">
+            <button type="submit" class="btn btn-lms-primary w-100">
+                <i class="bi bi-search me-1"></i>Search
+            </button>
+        </div>
+    </form>
+</div>
+
+<div class="lms-card">
+    <table class="table lms-table mb-0">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Active Issues</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in users %}
+            <tr>
+                <td style="color:#9ca3af;font-size:0.78rem;">{{ u.pk }}</td>
+                <td style="font-weight:500;">{{ u.get_full_name|default:"—" }}</td>
+                <td style="font-size:0.85rem;color:#6c6c7e;">{{ u.username }}</td>
+                <td style="font-size:0.82rem;">{{ u.email|default:"—" }}</td>
+                <td>
+                    <span class="lms-badge {% if u.is_admin_user %}role-admin{% elif u.is_faculty %}role-faculty{% else %}role-student{% endif %}">
+                        {{ u.get_role_display }}
+                    </span>
+                </td>
+                <td>
+                    <span class="lms-badge" style="background:#e0e7ff;color:#3730a3;">
+                        {{ u.active_issues_count }} / 3
+                    </span>
+                </td>
+                <td>
+                    {% if u.is_active %}
+                    <span class="lms-badge status-active">Active</span>
+                    {% else %}
+                    <span class="lms-badge" style="background:#f3f4f6;color:#9ca3af;">Inactive</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'accounts:user_update' u.pk %}" class="btn btn-sm" style="background:#f3f4f6;color:#374151;border:none;font-size:0.75rem;">
+                        <i class="bi bi-pencil me-1"></i>Edit
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="text-center text-muted py-4">No users found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if is_paginated %}
+    <div class="d-flex justify-content-center mt-3">
+        <nav><ul class="pagination pagination-sm">
+            {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ request.GET.q }}">&laquo;</a></li>
+            {% endif %}
+            <li class="page-item disabled"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+            {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ request.GET.q }}">&raquo;</a></li>
+            {% endif %}
+        </ul></nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

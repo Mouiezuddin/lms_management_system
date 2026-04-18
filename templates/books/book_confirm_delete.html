@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Delete Book{% endblock %}
+{% block page_title %}Delete Book{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="lms-card text-center" style="border-color:#fca5a5;">
+            <div style="font-size:3rem;color:#ef4444;margin-bottom:1rem;"><i class="bi bi-trash-fill"></i></div>
+            <h4 style="color:#991b1b;">Delete Book?</h4>
+            <p style="color:#6c6c7e;">Are you sure you want to permanently delete:</p>
+            <div class="p-3 mb-3" style="background:#fef2f2;border-radius:8px;border:1px solid #fecaca;">
+                <strong style="font-size:1.1rem;">{{ book.title }}</strong><br>
+                <span style="color:#6c6c7e;font-size:0.85rem;">by {{ book.author }}</span>
+            </div>
+            <p style="font-size:0.82rem;color:#991b1b;">
+                <i class="bi bi-exclamation-triangle me-1"></i>
+                This action cannot be undone. All associated data will be lost.
+            </p>
+            <div class="d-flex gap-2 justify-content-center mt-3">
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn" style="background:#dc2626;color:#fff;border:none;padding:0.6rem 1.5rem;">
+                        <i class="bi bi-trash me-1"></i>Yes, Delete
+                    </button>
+                </form>
+                <a href="{% url 'books:book_detail' book.pk %}" class="btn" style="background:#f3f4f6;color:#374151;border:none;padding:0.6rem 1.5rem;">
+                    Cancel
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

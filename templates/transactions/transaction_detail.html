@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% block title %}Transaction #{{ issue.pk }}{% endblock %}
+{% block page_title %}Transaction Detail{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <a href="{% url 'transactions:transaction_list' %}" class="btn btn-sm" style="background:#f3f4f6;color:#374151;border:none;margin-bottom:0.75rem;">
+            <i class="bi bi-arrow-left me-1"></i>Back
+        </a>
+        <h2>Transaction #{{ issue.pk }}</h2>
+    </div>
+    <div class="d-flex gap-2 align-items-center">
+        {% if not issue.return_date %}
+        <span class="lms-badge {% if issue.is_overdue %}status-overdue{% else %}status-active{% endif %}" style="font-size:0.8rem;padding:0.4rem 1rem;">
+            {% if issue.is_overdue %}Overdue{% else %}Active{% endif %}
+        </span>
+        {% if user.is_admin_user %}
+        <a href="{% url 'transactions:return_book' issue.pk %}" class="btn btn-lms-accent">
+            <i class="bi bi-box-arrow-left me-1"></i>Process Return
+        </a>
+        {% endif %}
+        {% else %}
+        <span class="lms-badge status-returned" style="font-size:0.8rem;padding:0.4rem 1rem;">Returned</span>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="lms-card mb-3">
+            <div class="section-title">Book Information</div>
+            <div class="d-flex gap-3 align-items-start">
+                <div style="width:48px;height:64px;background:#e0e7ff;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="bi bi-book-fill" style="color:#3730a3;font-size:1.5rem;"></i>
+                </div>
+                <div>
+                    <div style="font-family:'DM Serif Display',serif;font-size:1.2rem;color:#1a3a5c;">{{ issue.book.title }}</div>
+                    <div style="color:#6c6c7e;font-size:0.875rem;">{{ issue.book.author }}</div>
+                    <div style="margin-top:0.25rem;">
+                        {% if issue.book.category %}
+                        <span class="lms-badge" style="background:#e0e7ff;color:#3730a3;">{{ issue.book.category.name }}</span>
+                        {% endif %}
+                        <span style="font-size:0.78rem;color:#9ca3af;margin-left:0.5rem;">ISBN: {{ issue.book.isbn }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="lms-card mb-3">
+            <div class="section-title">Transaction Timeline</div>
+            <div class="row g-3">
+                <div class="col-sm-4 text-center">
+                    <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;color:#6c6c7e;">Issue Date</div>
+                    <div style="font-family:'DM Serif Display',serif;font-size:1.3rem;color:#1a3a5c;">{{ issue.issue_date|date:"d" }}</div>
+                    <div style="font-size:0.82rem;color:#6c6c7e;">{{ issue.issue_date|date:"M Y" }}</div>
+                </div>
+                <div class="col-sm-4 text-center">
+                    <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;color:#6c6c7e;">Due Date</div>
+                    <div style="font-family:'DM Serif Display',serif;font-size:1.3rem;{% if issue.is_overdue %}color:#991b1b;{% else %}color:#1a3a5c;{% endif %}">
+                        {{ issue.due_date|date:"d" }}
+                    </div>
+                    <div style="font-size:0.82rem;color:#6c6c7e;">{{ issue.due_date|date:"M Y" }}</div>
+                </div>
+                <div class="col-sm-4 text-center">
+                    <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;color:#6c6c7e;">Return Date</div>
+                    {% if issue.return_date %}
+                    <div style="font-family:'DM Serif Display',serif;font-size:1.3rem;color:#065f46;">{{ issue.return_date|date:"d" }}</div>
+                    <div style="font-size:0.82rem;color:#6c6c7e;">{{ issue.return_date|date:"M Y" }}</div>
+                    {% else %}
+                    <div style="font-size:1.3rem;color:#9ca3af;">—</div>
+                    <div style="font-size:0.78rem;color:#9ca3af;">Not returned</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if issue.notes %}
+            <div class="mt-3 pt-3 border-top">
+                <div style="font-size:0.78rem;color:#6c6c7e;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.5rem;">Notes</div>
+                <p style="font-size:0.875rem;color:#374151;white-space:pre-wrap;">{{ issue.notes }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="lms-card mb-3">
+            <div class="section-title">Borrower</div>
+            <div style="font-weight:600;font-size:1rem;">{{ issue.user.get_full_name|default:issue.user.username }}</div>
+            <div style="font-size:0.82rem;color:#6c6c7e;margin-top:0.25rem;">
+                <i class="bi bi-person me-1"></i>{{ issue.user.username }}<br>
+                <i class="bi bi-envelope me-1"></i>{{ issue.user.email }}<br>
+                <span class="lms-badge {% if issue.user.is_student %}role-student{% elif issue.user.is_faculty %}role-faculty{% else %}role-admin{% endif %} mt-2">
+                    {{ issue.user.get_role_display }}
+                </span>
+            </div>
+        </div>
+
+        <div class="lms-card mb-3">
+            <div class="section-title">Fine Details</div>
+            {% if issue.fine_amount %}
+            <div style="font-family:'DM Serif Display',serif;font-size:2rem;color:{% if issue.fine_status == 'PAID' %}#065f46{% elif issue.fine_status == 'WAIVED' %}#6c6c7e{% else %}#92400e{% endif %};">
+                ₹{{ issue.fine_amount }}
+            </div>
+            <div>
+                <span class="lms-badge 
+                    {% if issue.fine_status == 'PENDING' %}status-fine-pending
+                    {% elif issue.fine_status == 'PAID' %}status-fine-paid
+                    {% else %}status-fine-waived{% endif %}">
+                    {{ issue.get_fine_status_display }}
+                </span>
+            </div>
+            {% if issue.fine_status == 'PAID' and issue.fine_paid_at %}
+            <div style="font-size:0.75rem;color:#6c6c7e;margin-top:0.5rem;">
+                Paid on {{ issue.fine_paid_at|date:"d M Y, H:i" }}
+            </div>
+            {% endif %}
+            {% if user.is_admin_user and issue.fine_status == 'PENDING' %}
+            <a href="{% url 'transactions:fine_management' issue.pk %}" class="btn btn-sm mt-2" style="background:#fef3c7;color:#92400e;border:none;font-size:0.78rem;">
+                <i class="bi bi-cash me-1"></i>Manage Fine
+            </a>
+            {% endif %}
+            {% else %}
+            <div style="color:#065f46;font-size:0.875rem;">
+                <i class="bi bi-check-circle-fill me-1"></i>No fine
+            </div>
+            {% endif %}
+        </div>
+
+        {% if issue.issued_by %}
+        <div class="lms-card">
+            <div class="section-title">Staff</div>
+            <div style="font-size:0.82rem;">
+                <div class="mb-1">
+                    <span style="color:#6c6c7e;">Issued by:</span>
+                    <strong>{{ issue.issued_by.get_full_name|default:issue.issued_by.username }}</strong>
+                </div>
+                {% if issue.returned_to %}
+                <div>
+                    <span style="color:#6c6c7e;">Received by:</span>
+                    <strong>{{ issue.returned_to.get_full_name|default:issue.returned_to.username }}</strong>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

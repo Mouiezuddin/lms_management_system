@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Return Book{% endblock %}
+{% block page_title %}Return Book{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="lms-card">
+            <h4 style="font-family:'DM Serif Display',serif;color:#1a3a5c;margin-bottom:1.5rem;">
+                <i class="bi bi-box-arrow-left me-2" style="color:#c9722a;"></i>Process Return
+            </h4>
+
+            <!-- Issue Summary -->
+            <div class="p-3 mb-4" style="background:#f8f5f0;border-radius:10px;border:1px solid #e2ddd8;">
+                <div class="row g-2">
+                    <div class="col-6">
+                        <div style="font-size:0.72rem;color:#6c6c7e;text-transform:uppercase;letter-spacing:0.5px;">Book</div>
+                        <div style="font-weight:600;font-size:0.9rem;color:#1a3a5c;">{{ issue.book.title }}</div>
+                        <div style="font-size:0.78rem;color:#6c6c7e;">{{ issue.book.author }}</div>
+                    </div>
+                    <div class="col-6">
+                        <div style="font-size:0.72rem;color:#6c6c7e;text-transform:uppercase;letter-spacing:0.5px;">Borrower</div>
+                        <div style="font-weight:600;font-size:0.9rem;">{{ issue.user.get_full_name|default:issue.user.username }}</div>
+                        <div style="font-size:0.78rem;color:#6c6c7e;">{{ issue.user.username }}</div>
+                    </div>
+                    <div class="col-6">
+                        <div style="font-size:0.72rem;color:#6c6c7e;text-transform:uppercase;letter-spacing:0.5px;">Issued On</div>
+                        <div style="font-size:0.875rem;">{{ issue.issue_date|date:"d M Y" }}</div>
+                    </div>
+                    <div class="col-6">
+                        <div style="font-size:0.72rem;color:#6c6c7e;text-transform:uppercase;letter-spacing:0.5px;">Due Date</div>
+                        <div style="font-size:0.875rem;{% if issue.is_overdue %}color:#991b1b;font-weight:600;{% endif %}">
+                            {{ issue.due_date|date:"d M Y" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fine Preview -->
+            {% if projected_fine > 0 %}
+            <div class="alert" style="background:#fef3c7;color:#92400e;border:none;border-radius:10px;margin-bottom:1.5rem;">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div style="font-weight:700;font-size:1.1rem;">
+                            <i class="bi bi-exclamation-triangle me-1"></i>Late Return Fine
+                        </div>
+                        <div style="font-size:0.82rem;margin-top:0.25rem;">
+                            {{ late_days }} day(s) overdue × ₹5/day
+                        </div>
+                    </div>
+                    <div style="font-family:'DM Serif Display',serif;font-size:2rem;font-weight:700;">
+                        ₹{{ projected_fine }}
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="alert" style="background:#d1fae5;color:#065f46;border:none;border-radius:10px;margin-bottom:1.5rem;">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <strong>No fine</strong> — Returned on time!
+            </div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label class="form-label">Return Notes (optional)</label>
+                    {{ form.notes }}
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-lms-accent">
+                        <i class="bi bi-check-lg me-1"></i>Confirm Return
+                    </button>
+                    <a href="{% url 'transactions:transaction_list' %}" class="btn" style="background:#f3f4f6;color:#374151;border:none;">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
