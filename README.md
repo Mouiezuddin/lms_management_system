@@ -94,17 +94,6 @@ Visit: **http://127.0.0.1:8000**
 
 ---
 
-## 🔑 Demo Credentials
-
-| Role    | Username   | Password     |
-|---------|------------|--------------|
-| Admin   | `admin`    | `admin123`   |
-| Student | `student1` | `student123` |
-| Student | `student2` | `student123` |
-| Faculty | `faculty1` | `faculty123` |
-
----
-
 ## 🔐 Role Permissions
 
 | Feature                  | Admin | Faculty | Student |
