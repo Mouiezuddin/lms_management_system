@@ -40,57 +40,64 @@ lms/
 
 ---
 
-## ⚡ Quick Setup (Step by Step)
+## ⚡ Quick Setup
 
-### Step 1 — Create Virtual Environment
+### Step 1 — Clone & Create Virtual Environment
 
 ```bash
+git clone https://github.com/Mouiezuddin/lms_management_system.git
+cd lms_management_system
+
+# Create virtual environment
 python -m venv venv
 
-# macOS / Linux
-source venv/bin/activate
-
-# Windows
+# Activate — Windows
 venv\Scripts\activate
+
+# Activate — macOS / Linux
+source venv/bin/activate
 ```
 
-### Step 2 — Install Dependencies
+### Step 2 — One-Command Setup (installs deps + migrates + seeds all data)
+
+**Windows:**
+```bash
+setup.bat
+```
+
+**macOS / Linux:**
+```bash
+chmod +x setup.sh && ./setup.sh
+```
+
+> ⚠️ **Important:** You MUST run the setup script (or the manual steps below) after cloning. The database is not included in the repo — the seed commands create all the demo data, users, and books.
+
+---
+
+### Manual Setup (alternative)
 
 ```bash
 pip install -r requirements.txt
-```
-
-### Step 3 — Run Migrations
-
-```bash
-python manage.py makemigrations accounts books transactions
 python manage.py migrate
+python manage.py seed_demo        # creates users, categories, books, transactions
+python manage.py seed_it_books    # adds 500 IT books
 ```
 
-### Step 4 — Seed Demo Data (recommended)
-
-```bash
-python manage.py seed_demo
-```
-
-This creates:
-- 6 book categories
-- 13 books
-- 5 users (admin, 2 students, 2 faculty)
-- Sample transactions including active, overdue, and returned
-
-**Or** create only a superuser manually:
-```bash
-python manage.py createsuperuser
-```
-
-### Step 5 — Run Development Server
+### Step 3 — Run Development Server
 
 ```bash
 python manage.py runserver
 ```
 
 Visit: **http://127.0.0.1:8000**
+
+### Default Login Credentials
+
+| Role    | Username | Password    |
+|---------|----------|-------------|
+| Admin   | admin    | admin123    |
+| Student | student1 | student123  |
+| Faculty | faculty1 | faculty123  |
 
 ---
 
