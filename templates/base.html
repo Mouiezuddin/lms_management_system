@@ -593,6 +593,99 @@
             padding-bottom: 0.5rem;
             border-bottom: 1px solid var(--lms-border);
         }
+
+        /* Transaction Table Styles */
+        .book-title {
+            font-weight: 500;
+            color: var(--lms-primary);
+        }
+
+        .book-author {
+            font-size: 0.75rem;
+            color: var(--lms-muted);
+        }
+
+        .table-date {
+            font-size: 0.82rem;
+        }
+
+        .due-date-cell {
+            font-size: 0.82rem;
+        }
+
+        .due-date-cell.overdue {
+            color: #991b1b;
+            font-weight: 600;
+        }
+
+        .late-days {
+            font-size: 0.72rem;
+        }
+
+        .fine-amount {
+            color: #92400e;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .empty-state-icon {
+            font-size: 2.5rem;
+            color: #9ca3af;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state-text {
+            color: var(--lms-muted);
+        }
+
+        .pending-fines-section {
+            color: #92400e;
+        }
+
+        .pending-fines-card {
+            border-color: #fcd34d !important;
+        }
+
+        .fine-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--lms-border);
+        }
+
+        .fine-item:last-child {
+            border-bottom: none;
+        }
+
+        .fine-book-info {
+            flex: 1;
+        }
+
+        .fine-book-title {
+            font-weight: 500;
+        }
+
+        .fine-book-meta {
+            font-size: 0.78rem;
+            color: var(--lms-muted);
+        }
+
+        .fine-amount-display {
+            text-align: right;
+        }
+
+        .fine-amount-value {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.3rem;
+            color: #92400e;
+        }
+
+        .fine-payment-note {
+            font-size: 0.72rem;
+            color: var(--lms-muted);
+        }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
