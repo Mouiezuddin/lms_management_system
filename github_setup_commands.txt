@@ -1,0 +1,10 @@
+# Commands to run after creating the GitHub repository
+
+# Replace 'YOUR_GITHUB_USERNAME' with your actual GitHub username
+git remote add origin https://github.com/YOUR_GITHUB_USERNAME/lms_management_system.git
+
+# Push the code to GitHub
+git push -u origin main
+
+# Alternative if you get authentication issues:
+# git push -u origin main --force
